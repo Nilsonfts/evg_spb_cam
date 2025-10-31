@@ -6,9 +6,8 @@ from datetime import datetime
 
 app = FastAPI()
 
-# Переменные окружения
+# Environment variables
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
 CHAT_ID_GROUP = os.getenv("CHAT_ID_GROUP")
 RTSP_URL = os.getenv("RTSP_URL")
 
@@ -18,12 +17,12 @@ def root():
 
 @app.get("/button")
 def button_pressed():
-    """Запускается при нажатии кнопки Shelly"""
+    """Triggered when Shelly button is pressed"""
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"snapshot_{timestamp}.jpg"
+    filename = f"/tmp/snapshot_{timestamp}.jpg"
 
     try:
-        # Делаем снимок через ffmpeg
+        # Capture snapshot via ffmpeg
         subprocess.run(
             ["ffmpeg", "-y", "-i", RTSP_URL, "-frames:v", "1", filename],
             stdout=subprocess.DEVNULL,
@@ -31,7 +30,7 @@ def button_pressed():
             check=True
         )
 
-        # Отправляем фото в Telegram
+        # Send photo to Telegram
         with open(filename, "rb") as photo:
             requests.post(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",

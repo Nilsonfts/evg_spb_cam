@@ -3,3 +3,5 @@ uvicorn
 requests
 
 ffmpeg-python
+
+pytapo
